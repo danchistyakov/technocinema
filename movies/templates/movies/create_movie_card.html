@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block title %}Создать карточку - Technokino{% endblock %}
+{% block content %}
+
+<script src="https://cdn.ckeditor.com/4.22.0/standard/ckeditor.js"></script>
+
+<div class="container py-5">
+    <h1 class="text-center mb-4">Создать карточку о любимом фильме</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="mb-3">
+            {{ form.title.label_tag }}
+            {{ form.title }}
+        </div>
+        <div class="mb-3">
+            {{ form.description.label_tag }}
+            {{ form.description }}
+        </div>
+        <div class="mb-3">
+            {{ form.image.label_tag }}
+            {{ form.image }}
+        </div>
+        <div class="mb-3">
+            {{ form.external_link.label_tag }}
+            {{ form.external_link }}
+        </div>
+        <button type="submit" class="btn btn-primary">Создать</button>
+    </form>
+</div>
+<script>
+    CKEDITOR.replace('id_description');
+</script>
+{% endblock %}

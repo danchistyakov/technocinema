@@ -1,0 +1,4 @@
+Здравствуйте {{ user.username }},
+
+Для активации аккаунта перейдите по ссылке:
+http://{{ domain }}{% url 'activate' uidb64=uidb64 token=token %}

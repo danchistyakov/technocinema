@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Главная - Technokino{% endblock %}
+
+{% block content %}
+    <h1 class="text-center">Добро пожаловать на Technokino!</h1>
+    <div class="row mt-4">
+        {% for card in cards %}
+            <div class="col-md-4 mb-4" id="card-{{ card.id }}">
+                <div class="card shadow-sm">
+                    <img src="{{ card.image.url }}" class="card-img-top"
+                         style="height: 200px; object-fit: cover; object-position: center;" alt="{{ card.title }}">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ card.title }}</h5>
+                        <p class="card-text">Автор: {{ card.author.username }}</p>
+                        <p class="card-text">Дата: {{ card.created_at|date:"d M Y" }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="vote-buttons">
+                                <button class="btn btn-success btn-sm" onclick="vote({{ card.id }}, 1)">
+                                    👍
+                                </button>
+                                <span class="mx-2" id="vote-count-{{ card.id }}">
+                                {{ card.total_votes }}
+                            </span>
+                                <button class="btn btn-danger btn-sm" onclick="vote({{ card.id }}, -1)">
+                                    👎
+                                </button>
+                            </div>
+                            {% if card.author == user %}
+                                <button class="btn btn-danger btn-sm delete-btn"
+                                        data-card-id="{{ card.id }}">
+                                    Удалить
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const cardId = button.getAttribute('data-card-id');
+                    const cardElement = document.getElementById(`card-${cardId}`);
+
+                    if (confirm('Вы уверены, что хотите удалить эту карточку?')) {
+                        fetch(`/movies/delete/${cardId}/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': '{{ csrf_token }}',
+                                'Content-Type': 'application/json',
+                            },
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    cardElement.remove();
+                                    alert(data.message);
+                                } else {
+                                    alert('Ошибка: ' + data.message);
+                                }
+                            })
+                            .catch(error => console.error('Ошибка:', error));
+                    }
+                });
+            });
+        });
+
+        function vote(cardId, value) {
+            fetch(`/movies/vote/${cardId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({vote: value}),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById(`vote-count-${cardId}`).textContent = data.new_vote_count;
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => console.error('Ошибка:', error));
+        }
+    </script>
+{% endblock %}

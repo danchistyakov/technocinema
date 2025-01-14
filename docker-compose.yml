@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  db:
+    container_name: db_blog
+    image: mysql:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: DB
+    volumes:
+      - ./db_django:/var/lib/mysql
+
+  web:
+    container_name: blog_django
+    image: blog:latest
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - django_blog:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_PORT=3306
+    depends_on:
+      - db
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: phpmyadmin_django
+    environment:
+      - PMA_ARBITRARY=1
+      - PMA_HOST=db
+    restart: always
+    ports:
+      - 8081:80
+
+volumes:
+  django_blog:
+
+networks:
+  default:
+    driver: bridge
