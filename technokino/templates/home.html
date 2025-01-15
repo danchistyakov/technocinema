@@ -15,15 +15,15 @@
                             <h5 class="card-title">{{ card.title }}</h5>
                             <p class="card-text">Автор: {{ card.author.username }}</p>
                             <p class="card-text">Дата: {{ card.created_at|date:"d M Y" }}</p>
-                            <div class="d-none card-description">{{ card.description }}</div>
+                            <div class="d-none card-description">{{ card.description|safe }}</div>
                             <div class="d-flex justify-content-between align-items-center">
                                 <div class="vote-buttons">
                                     <button class="btn btn-success btn-sm" onclick="vote({{ card.id }}, 1)">
                                         👍
                                     </button>
                                     <span class="mx-2" id="vote-count-{{ card.id }}">
-                                {{ card.total_votes }}
-                            </span>
+                                        {{ card.total_votes }}
+                                    </span>
                                     <button class="btn btn-danger btn-sm" onclick="vote({{ card.id }}, -1)">
                                         👎
                                     </button>
@@ -34,8 +34,7 @@
                                         Удалить
                                     </button>
                                 {% endif %}
-                                <button class="btn btn-primary btn-sm open-modal-btn card-button"
-                                        id="button-{{ card.id }}">
+                                <button class="btn btn-primary btn-sm open-modal-btn" data-card-id="{{ card.id }}">
                                     Подробнее
                                 </button>
                             </div>
@@ -54,13 +53,11 @@
                     <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
                 </li>
             {% endif %}
-
             {% for num in page_obj.paginator.page_range %}
                 <li class="page-item {% if page_obj.number == num %}active{% endif %}">
                     <a class="page-link" href="?page={{ num }}">{{ num }}</a>
                 </li>
             {% endfor %}
-
             {% if page_obj.has_next %}
                 <li class="page-item">
                     <a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперёд</a>
@@ -87,51 +84,22 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const deleteButtons = document.querySelectorAll('.delete-btn');
-            deleteButtons.forEach(button => {
-                button.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    event.preventDefault();
-                    const cardId = button.getAttribute('data-card-id');
-                    const buttonElement = document.getElementById(`button-${cardId}`);
+            document.querySelectorAll('.open-modal-btn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const cardId = button.dataset.cardId;
+                    const card = document.querySelector(`#card-${cardId}`);
 
-                    if (confirm('Вы уверены, что хотите удалить эту карточку?')) {
-                        fetch(`/movies/delete/${cardId}/`, {
-                            method: 'POST',
-                            headers: {
-                                'X-CSRFToken': '{{ csrf_token }}',
-                                'Content-Type': 'application/json',
-                            },
-                        })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    buttonElement.remove();
-                                    alert(data.message);
-                                } else {
-                                    alert('Ошибка: ' + data.message);
-                                }
-                            })
-                            .catch(error => console.error('Ошибка:', error));
-                    }
-                });
-            });
-
-            document.querySelectorAll('.card-button').forEach(button => {
-                button.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    event.preventDefault();
-                    const image = document.querySelector('img').src;
-                    const title = document.querySelector('.card-title').textContent;
-                    const author = document.querySelector('.card-text:nth-of-type(1)').textContent.replace('Автор: ', '');
-                    const date = document.querySelector('.card-text:nth-of-type(2)').textContent.replace('Дата: ', '');
-                    const description = document.querySelector('.card-description')?.textContent || 'Описание недоступно';
+                    const image = card.querySelector('img').src;
+                    const title = card.querySelector('.card-title').textContent;
+                    const author = card.querySelector('.card-text:nth-of-type(1)').textContent.replace('Автор: ', '');
+                    const date = card.querySelector('.card-text:nth-of-type(2)').textContent.replace('Дата: ', '');
+                    const description = card.querySelector('.card-description').innerHTML;
 
                     document.getElementById('modal-image').src = image;
                     document.getElementById('modal-title').textContent = title;
                     document.getElementById('modal-author').textContent = author;
                     document.getElementById('modal-date').textContent = date;
-                    document.getElementById('modal-description').textContent = description;
+                    document.getElementById('modal-description').innerHTML = description;
 
                     new bootstrap.Modal(document.getElementById('movieModal')).show();
                 });
