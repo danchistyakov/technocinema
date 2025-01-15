@@ -2,3 +2,4 @@ db_django
 .venv
 .idea
 media
+.env

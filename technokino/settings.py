@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'technokino.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sql7757812',
+        'NAME': 'default_db',
         'USER': config('DB_USER'),
         'PASSWORD': config('DB_PASSWORD'),
         'HOST': config('DB_HOST'),
