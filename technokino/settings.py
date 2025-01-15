@@ -11,8 +11,6 @@ ALLOWED_HOSTS = ['localhost', '0.0.0.0', 'technocinema.onrender.com']
 LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'Europe/Moscow'
 
-DEBUG = True
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
