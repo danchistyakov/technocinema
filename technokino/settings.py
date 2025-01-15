@@ -10,8 +10,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
-LANGUAGE_CODE = 'ru'
-
+LANGUAGE_CODE = 'ru'  # Устанавливаем язык на русский
 TIME_ZONE = 'Europe/Moscow'
 
 INSTALLED_APPS = [
