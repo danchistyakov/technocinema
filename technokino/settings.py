@@ -6,10 +6,12 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-ALLOWED_HOSTS = ['94.228.113.75']
+ALLOWED_HOSTS = ['localhost', '0.0.0.0', 'technocinema.onrender.com']
 
 LANGUAGE_CODE = 'ru'
 TIME_ZONE = 'Europe/Moscow'
+
+DEBUG = True
 
 INSTALLED_APPS = [
     'django.contrib.admin',
