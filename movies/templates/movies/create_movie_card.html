@@ -1,34 +1,40 @@
 {% extends 'base.html' %}
-
+{% load form_tags %}
 {% block title %}Создать карточку - Technokino{% endblock %}
 {% block content %}
 
-<script src="https://cdn.ckeditor.com/4.22.0/standard/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/4.22.0/standard/ckeditor.js"></script>
 
-<div class="container py-5">
-    <h1 class="text-center mb-4">Создать карточку о любимом фильме</h1>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="mb-3">
-            {{ form.title.label_tag }}
-            {{ form.title }}
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <h1 class="text-center mb-4">Создать карточку о любимом фильме</h1>
+            <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_title" class="form-label">Название фильма</label>
+                    {{ form.title|add_class:"form-control" }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_description" class="form-label">Описание фильма</label>
+                    {{ form.description|add_class:"form-control" }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_image" class="form-label">Изображение (jpg, png, до 5 МБ)</label>
+                    {{ form.image|add_class:"form-control" }}
+                </div>
+                <div class="mb-3">
+                    <label for="id_external_link" class="form-label">Ссылка на дополнительную информацию</label>
+                    {{ form.external_link|add_class:"form-control" }}
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">Создать карточку</button>
+                </div>
+            </form>
         </div>
-        <div class="mb-3">
-            {{ form.description.label_tag }}
-            {{ form.description }}
-        </div>
-        <div class="mb-3">
-            {{ form.image.label_tag }}
-            {{ form.image }}
-        </div>
-        <div class="mb-3">
-            {{ form.external_link.label_tag }}
-            {{ form.external_link }}
-        </div>
-        <button type="submit" class="btn btn-primary">Создать</button>
-    </form>
-</div>
-<script>
-    CKEDITOR.replace('id_description');
-</script>
+    </div>
+
+    <script>
+        CKEDITOR.replace('id_description');
+    </script>
+
 {% endblock %}

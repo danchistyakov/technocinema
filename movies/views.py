@@ -11,11 +11,15 @@ import json
 def create_movie_card(request):
     if request.method == 'POST':
         form = MovieCardForm(request.POST, request.FILES)
+        if 'image' in request.FILES:
+            image = request.FILES['image']
+            if image.size > 5 * 1024 * 1024:
+                form.add_error('image', 'Размер изображения не должен превышать 5 МБ')
         if form.is_valid():
             movie_card = form.save(commit=False)
             movie_card.author = request.user
             movie_card.save()
-            return redirect('home')  # Перенаправляем на главную страницу
+            return redirect('home')
     else:
         form = MovieCardForm()
     return render(request, 'movies/create_movie_card.html', {'form': form})
@@ -36,22 +40,18 @@ def vote_movie_card(request, card_id):
     if request.method == "POST":
         movie_card = get_object_or_404(MovieCard, id=card_id)
 
-        # Нельзя голосовать за свою карточку
         if movie_card.author == request.user:
             return JsonResponse({'status': 'error', 'message': 'Нельзя голосовать за свою карточку'}, status=403)
 
-        # Получение значения голоса
         data = json.loads(request.body)
         vote_value = data.get('vote')
         if vote_value not in [1, -1]:
             return JsonResponse({'status': 'error', 'message': 'Неверное значение голоса'}, status=400)
 
-        # Проверка, голосовал ли уже пользователь
         vote, created = Vote.objects.get_or_create(user=request.user, movie_card=movie_card)
         if not created and vote.value == vote_value:
             return JsonResponse({'status': 'error', 'message': 'Вы уже голосовали таким образом'}, status=400)
 
-        # Обновление или создание голоса
         vote.value = vote_value
         vote.save()
 

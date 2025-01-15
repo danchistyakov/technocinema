@@ -16,10 +16,9 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = False  # Пользователь будет неактивным до активации
+            user.is_active = False
             user.save()
 
-            # Генерация ссылки активации
             current_site = get_current_site(request)
             subject = 'Активируйте ваш аккаунт'
             message = render_to_string('users/activation_email.html', {
@@ -54,7 +53,7 @@ def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(data=request.POST)
         if form.is_valid():
-            print("Форма валидна")  # Лог
+            print("Форма валидна")
             user = form.get_user()
             if user:
                 print(f"Пользователь найден: {user.username}")  # Лог

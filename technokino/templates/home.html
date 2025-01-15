@@ -1,42 +1,84 @@
 {% extends 'base.html' %}
 
-{% block title %}Главная - Technokino{% endblock %}
+{% block title %}Главная{% endblock %}
 
 {% block content %}
     <h1 class="text-center">Добро пожаловать на Technokino!</h1>
-    <div class="row mt-4">
-        {% for card in cards %}
-            <div class="col-md-4 mb-4" id="card-{{ card.id }}">
-                <div class="card shadow-sm">
-                    <img src="{{ card.image.url }}" class="card-img-top"
-                         style="height: 200px; object-fit: cover; object-position: center;" alt="{{ card.title }}">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ card.title }}</h5>
-                        <p class="card-text">Автор: {{ card.author.username }}</p>
-                        <p class="card-text">Дата: {{ card.created_at|date:"d M Y" }}</p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div class="vote-buttons">
-                                <button class="btn btn-success btn-sm" onclick="vote({{ card.id }}, 1)">
-                                    👍
-                                </button>
-                                <span class="mx-2" id="vote-count-{{ card.id }}">
+    {% if page_obj.object_list %}
+        <div class="row mt-4">
+            {% for card in page_obj %}
+                <div role="button" class="col-md-4 mb-4" id="card-{{ card.id }}">
+                    <div class="card shadow-sm">
+                        <img src="{{ card.image.url }}" class="card-img-top"
+                             style="height: 200px; object-fit: cover; object-position: center;" alt="{{ card.title }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ card.title }}</h5>
+                            <p class="card-text">Автор: {{ card.author.username }}</p>
+                            <p class="card-text">Дата: {{ card.created_at|date:"d M Y" }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="vote-buttons">
+                                    <button class="btn btn-success btn-sm" onclick="vote({{ card.id }}, 1)">
+                                        👍
+                                    </button>
+                                    <span class="mx-2" id="vote-count-{{ card.id }}">
                                 {{ card.total_votes }}
                             </span>
-                                <button class="btn btn-danger btn-sm" onclick="vote({{ card.id }}, -1)">
-                                    👎
-                                </button>
+                                    <button class="btn btn-danger btn-sm" onclick="vote({{ card.id }}, -1)">
+                                        👎
+                                    </button>
+                                </div>
+                                {% if card.author == user %}
+                                    <button class="btn btn-danger btn-sm delete-btn"
+                                            data-card-id="{{ card.id }}">
+                                        Удалить
+                                    </button>
+                                {% endif %}
                             </div>
-                            {% if card.author == user %}
-                                <button class="btn btn-danger btn-sm delete-btn"
-                                        data-card-id="{{ card.id }}">
-                                    Удалить
-                                </button>
-                            {% endif %}
                         </div>
                     </div>
                 </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="text-center mt-3">Карточек пока нет. Добавьте первую!</p>
+    {% endif %}
+    <nav>
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Назад</a>
+                </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+                </li>
+            {% endif %}
+        </ul>
+    </nav>
+    <div class="modal fade" id="movieModal" tabindex="-1" aria-labelledby="movieModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="movieModalLabel">Описание фильма</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <img id="modal-image" src="" class="img-fluid mb-3" alt="Фильм">
+                    <h5 id="modal-title"></h5>
+                    <p><strong>Автор:</strong> <span id="modal-author"></span></p>
+                    <p><strong>Дата создания:</strong> <span id="modal-date"></span></p>
+                    <p id="modal-description"></p>
+                </div>
             </div>
-        {% endfor %}
+        </div>
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
@@ -66,6 +108,24 @@
                             })
                             .catch(error => console.error('Ошибка:', error));
                     }
+                });
+            });
+
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('click', () => {
+                    const image = card.querySelector('img').src;
+                    const title = card.querySelector('.card-title').textContent;
+                    const author = card.querySelector('.card-text:nth-of-type(1)').textContent.replace('Автор: ', '');
+                    const date = card.querySelector('.card-text:nth-of-type(2)').textContent.replace('Дата: ', '');
+                    const description = card.querySelector('.card-description')?.textContent || 'Описание недоступно';
+
+                    document.getElementById('modal-image').src = image;
+                    document.getElementById('modal-title').textContent = title;
+                    document.getElementById('modal-author').textContent = author;
+                    document.getElementById('modal-date').textContent = date;
+                    document.getElementById('modal-description').textContent = description;
+
+                    new bootstrap.Modal(document.getElementById('movieModal')).show();
                 });
             });
         });

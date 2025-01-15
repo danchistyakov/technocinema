@@ -5,10 +5,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('', views.home, name='home'),  # Главная страница
+    path('', views.home, name='home'),
     path('movies/', include('movies.urls')),
-    path('users/', include('users.urls')),  # Пользовательские маршруты
-    path('admin/', admin.site.urls),  # Админка
+    path('users/', include('users.urls')),
+    path('admin/', admin.site.urls),
 ]
 
 if settings.DEBUG:
