@@ -7,7 +7,7 @@
     {% if page_obj.object_list %}
         <div class="row mt-4">
             {% for card in page_obj %}
-                <div role="button" class="col-md-4 mb-4" id="card-{{ card.id }}">
+                <div class="col-md-4 mb-4" id="card-{{ card.id }}">
                     <div class="card shadow-sm">
                         <img src="{{ card.image.url }}" class="card-img-top"
                              style="height: 200px; object-fit: cover; object-position: center;" alt="{{ card.title }}">
@@ -34,6 +34,10 @@
                                         Удалить
                                     </button>
                                 {% endif %}
+                                <button class="btn btn-primary btn-sm open-modal-btn card-button"
+                                        id="button-{{ card.id }}">
+                                    Подробнее
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -84,11 +88,12 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const deleteButtons = document.querySelectorAll('.delete-btn');
-
             deleteButtons.forEach(button => {
-                button.addEventListener('click', () => {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
                     const cardId = button.getAttribute('data-card-id');
-                    const cardElement = document.getElementById(`card-${cardId}`);
+                    const buttonElement = document.getElementById(`button-${cardId}`);
 
                     if (confirm('Вы уверены, что хотите удалить эту карточку?')) {
                         fetch(`/movies/delete/${cardId}/`, {
@@ -101,7 +106,7 @@
                             .then(response => response.json())
                             .then(data => {
                                 if (data.success) {
-                                    cardElement.remove();
+                                    buttonElement.remove();
                                     alert(data.message);
                                 } else {
                                     alert('Ошибка: ' + data.message);
@@ -112,13 +117,15 @@
                 });
             });
 
-            document.querySelectorAll('.card').forEach(card => {
-                card.addEventListener('click', () => {
-                    const image = card.querySelector('img').src;
-                    const title = card.querySelector('.card-title').textContent;
-                    const author = card.querySelector('.card-text:nth-of-type(1)').textContent.replace('Автор: ', '');
-                    const date = card.querySelector('.card-text:nth-of-type(2)').textContent.replace('Дата: ', '');
-                    const description = card.querySelector('.card-description')?.textContent || 'Описание недоступно';
+            document.querySelectorAll('.card-button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                    const image = document.querySelector('img').src;
+                    const title = document.querySelector('.card-title').textContent;
+                    const author = document.querySelector('.card-text:nth-of-type(1)').textContent.replace('Автор: ', '');
+                    const date = document.querySelector('.card-text:nth-of-type(2)').textContent.replace('Дата: ', '');
+                    const description = document.querySelector('.card-description')?.textContent || 'Описание недоступно';
 
                     document.getElementById('modal-image').src = image;
                     document.getElementById('modal-title').textContent = title;
