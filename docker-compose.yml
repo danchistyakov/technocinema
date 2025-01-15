@@ -11,6 +11,8 @@ services:
       MYSQL_DATABASE: DB
     volumes:
       - ./db_django:/var/lib/mysql
+    networks:
+      - django
 
   web:
     container_name: blog_django
@@ -26,6 +28,8 @@ services:
       - MYSQL_PORT=3306
     depends_on:
       - db
+    networks:
+      - django
 
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
@@ -36,10 +40,12 @@ services:
     restart: always
     ports:
       - 8081:80
+    networks:
+      - django
 
 volumes:
+  db_django:
   django_blog:
 
 networks:
-  default:
-    driver: bridge
+  django:
