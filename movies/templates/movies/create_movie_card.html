@@ -3,29 +3,70 @@
 {% block title %}Создать карточку - Technokino{% endblock %}
 {% block content %}
 
-    <script src="https://cdn.ckeditor.com/4.22.0/standard/ckeditor.js"></script>
+    <script src="https://cdn.ckeditor.com/4.22.1/standard/ckeditor.js"></script>
 
     <div class="row justify-content-center">
         <div class="col-lg-8">
             <h1 class="text-center mb-4">Создать карточку о любимом фильме</h1>
             <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                 {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
                 <div class="mb-3">
                     <label for="id_title" class="form-label">Название фильма</label>
                     {{ form.title|add_class:"form-control" }}
+                    {% if form.title.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.title.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
+
                 <div class="mb-3">
                     <label for="id_description" class="form-label">Описание фильма</label>
                     {{ form.description|add_class:"form-control" }}
+                    {% if form.description.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.description.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
+
                 <div class="mb-3">
                     <label for="id_image" class="form-label">Изображение (jpg, png, до 5 МБ)</label>
                     {{ form.image|add_class:"form-control" }}
+                    {% if form.image.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.image.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
+
                 <div class="mb-3">
                     <label for="id_external_link" class="form-label">Ссылка на дополнительную информацию</label>
                     {{ form.external_link|add_class:"form-control" }}
+                    {% if form.external_link.errors %}
+                        <div class="text-danger mt-1">
+                            {% for error in form.external_link.errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                 </div>
+
                 <div class="d-grid">
                     <button type="submit" class="btn btn-primary btn-lg">Создать карточку</button>
                 </div>
@@ -34,7 +75,13 @@
     </div>
 
     <script>
-        CKEDITOR.replace('id_description');
+        CKEDITOR.replace('id_description', {
+            versionCheck: false,
+            removePlugins: 'image,flash,iframe,sourcearea',
+            allowedContent: 'p b i u ul ol li;',
+            disallowedContent: '*[on*]; img[*]',
+            height: 300
+        });
     </script>
 
 {% endblock %}

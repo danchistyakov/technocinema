@@ -3,3 +3,4 @@ db_django
 .idea
 .env
 media
+staticfiles

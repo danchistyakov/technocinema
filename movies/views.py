@@ -11,10 +11,6 @@ import json
 def create_movie_card(request):
     if request.method == 'POST':
         form = MovieCardForm(request.POST, request.FILES)
-        if 'image' in request.FILES:
-            image = request.FILES['image']
-            if image.size > 5 * 1024 * 1024:
-                form.add_error('image', 'Размер изображения не должен превышать 5 МБ')
         if form.is_valid():
             movie_card = form.save(commit=False)
             movie_card.author = request.user
@@ -35,25 +31,28 @@ def delete_movie_card(request, card_id):
     return JsonResponse({'success': False, 'message': 'Неверный запрос'}, status=400)
 
 
-@login_required
 def vote_movie_card(request, card_id):
     if request.method == "POST":
+        if not request.user.is_authenticated:
+            return JsonResponse({'success': False, 'message': "Авторизуйтесь чтобы проголосовать за карточку фильма."},
+                                status=401)
+
         movie_card = get_object_or_404(MovieCard, id=card_id)
 
         if movie_card.author == request.user:
-            return JsonResponse({'status': 'error', 'message': 'Нельзя голосовать за свою карточку'}, status=403)
+            return JsonResponse({'success': False, 'message': 'Нельзя голосовать за свою карточку'}, status=403)
 
         data = json.loads(request.body)
         vote_value = data.get('vote')
         if vote_value not in [1, -1]:
-            return JsonResponse({'status': 'error', 'message': 'Неверное значение голоса'}, status=400)
+            return JsonResponse({'success': False, 'message': 'Неверное значение голоса'}, status=400)
 
         vote, created = Vote.objects.get_or_create(user=request.user, movie_card=movie_card)
         if not created and vote.value == vote_value:
-            return JsonResponse({'status': 'error', 'message': 'Вы уже голосовали таким образом'}, status=400)
+            return JsonResponse({'success': False, 'message': 'Вы уже голосовали таким образом'}, status=400)
 
         vote.value = vote_value
         vote.save()
 
         return JsonResponse({'success': True, 'new_vote_count': movie_card.total_votes()})
-    return JsonResponse({'status': 'error', 'message': 'Неверный запрос'}, status=400)
+    return JsonResponse({'success': False, 'message': 'Неверный запрос'}, status=400)

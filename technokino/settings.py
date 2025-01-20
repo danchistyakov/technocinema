@@ -1,14 +1,19 @@
 from pathlib import Path
 from decouple import config
+import os
 
 SECRET_KEY = config('SECRET_KEY')
 EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-
+DEBUG = False
 ALLOWED_HOSTS = ['localhost', '0.0.0.0', 'technocinema.onrender.com']
 CSRF_TRUSTED_ORIGINS = ['https://technocinema.onrender.com']
 LANGUAGE_CODE = 'ru'
+LANGUAGES = [
+    ('ru', 'Russian'),
+    ('en', 'English'),
+]
 TIME_ZONE = 'Europe/Moscow'
 
 INSTALLED_APPS = [
@@ -30,6 +35,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'technokino.urls'
@@ -57,7 +63,17 @@ TEMPLATES = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+    BASE_DIR / 'media',
+]
+
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+if not DEBUG:
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',

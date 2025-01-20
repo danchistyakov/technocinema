@@ -49,9 +49,7 @@ def register(request):
                 messages.error(request, 'Не удалось отправить письмо активации. Попробуйте ещё раз.')
                 user.delete()
         else:
-            for field, errors in form.errors.items():
-                for error in errors:
-                    messages.error(request, f"Ошибка в поле {field}")
+            messages.error(request, 'Пожалуйста, исправьте ошибки в форме.')
     else:
         form = RegisterForm()
     return render(request, 'users/register.html', {'form': form})
@@ -65,7 +63,6 @@ def activate(request, uidb64, token):
         user.save()
         messages.success(request, 'Ваш аккаунт успешно активирован. Теперь вы можете войти.')
     else:
-        print('error')
         messages.error(request, 'Ссылка для активации недействительна.')
     return redirect('login')
 
